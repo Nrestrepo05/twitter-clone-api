@@ -42,7 +42,65 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.post('/new', async (req, res) => {
+router.get('/user/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const tweets = await controller.getTweetsByUser(id);
+    if (!tweets) {
+      const tweetDoesNotExist = new Error('this user have not tweets');
+      tweetDoesNotExist.name = 'TweetDoesNotExist';
+      throw tweetDoesNotExist;
+    }
+    return response.success(req, res, tweets, 200);
+  } catch (error) {
+    let errorMessage;
+    let statusCode;
+
+    if (error.name === 'TweetDoesNotExist') {
+      errorMessage = error.message;
+      statusCode = 404;
+    } else if (error.name === 'CastError') {
+      errorMessage = 'invalid ID';
+      statusCode = 404;
+    } else {
+      errorMessage = 'Server Error';
+      statusCode = 500;
+    }
+
+    return response.error(req, res, errorMessage, statusCode, error.message);
+  }
+});
+
+router.post('/like', async (req, res) => {
+  try {
+    const { tweetId, userId } = req.body;
+    const tweet = await controller.likeTweet(tweetId, userId);
+    if (!tweet) {
+      const tweetDoesNotExist = new Error('a tweet with this ID does not exist');
+      tweetDoesNotExist.name = 'TweetDoesNotExist';
+      throw tweetDoesNotExist;
+    }
+    return response.success(req, res, tweet, 200);
+  } catch (error) {
+    let errorMessage;
+    let statusCode;
+
+    if (error.name === 'TweetDoesNotExist') {
+      errorMessage = error.message;
+      statusCode = 404;
+    } else if (error.name === 'CastError') {
+      errorMessage = 'invalid ID';
+      statusCode = 404;
+    } else {
+      errorMessage = 'Server Error';
+      statusCode = 500;
+    }
+
+    return response.error(req, res, errorMessage, statusCode, error.message);
+  }
+});
+
+router.post('/', async (req, res) => {
   try {
     const tweet = await controller.addTweet(req.body);
     return response.success(req, res, tweet, 201);

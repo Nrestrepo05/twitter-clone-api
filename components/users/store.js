@@ -1,6 +1,7 @@
+const { Types } = require('mongoose');
 const UserModel = require('./model');
 
-async function getUser(id) {
+async function login(id) {
   const searchExpression = {
     $or: [
       { email: id },
@@ -12,7 +13,12 @@ async function getUser(id) {
 }
 
 async function getUserById(id) {
-  const user = await UserModel.findById(id);
+  let user;
+  if (Types.ObjectId.isValid(id)) {
+    user = await UserModel.findById(id, '-password');
+  } else {
+    user = await UserModel.findOne({ username: id }, '-password');
+  }
   return user;
 }
 
@@ -21,8 +27,14 @@ function addUser(user) {
   return newUser.save();
 }
 
+async function updateUser(id, user) {
+  const userUpdated = await UserModel.findOneAndUpdate({ _id: id }, user, { new: true });
+  return userUpdated;
+}
+
 module.exports = {
-  getUser,
+  login,
   getUserById,
   addUser,
+  updateUser,
 };

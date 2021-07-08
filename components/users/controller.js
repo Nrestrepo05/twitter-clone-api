@@ -2,7 +2,7 @@ const store = require('./store');
 const { encrypt, compare } = require('../../utils/encrypter');
 
 async function getUserById(id) {
-  return store.getUser(id);
+  return store.getUserById(id);
 }
 
 async function addUser(user) {
@@ -17,9 +17,9 @@ async function addUser(user) {
 async function login(user) {
   let userResponse;
   if (user.email) {
-    userResponse = await store.getUser(user.emailemail);
+    userResponse = await store.login(user.email);
   } else if (user.username) {
-    userResponse = await store.getUser(user.username);
+    userResponse = await store.login(user.username);
   } else {
     throw new Error('user does not exists');
   }
@@ -32,8 +32,14 @@ async function login(user) {
   throw error;
 }
 
+async function updateUser(id, user) {
+  const userUpdated = await store.updateUser(id, user);
+  return userUpdated;
+}
+
 module.exports = {
   addUser,
   login,
   getUserById,
+  updateUser,
 };

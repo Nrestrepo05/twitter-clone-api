@@ -35,6 +35,16 @@ const UserSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  img: {
+    data: Buffer,
+    contentType: String,
+  },
+  biography: {
+    type: String,
+    default: 'Hey, this is a twitter clone!',
+    minLength: [1, 'biography should have at least 2 characters'],
+    maxLength: [250, 'biography is too long'],
+  },
 });
 
 const UserModel = mongoose.model('users', UserSchema);
